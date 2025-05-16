@@ -60,3 +60,38 @@ To resolve concurrency issues in memory access or output between program instruc
 > One of the OS roles and a concept: processes.
 
 Every program is encapsulated in a process that has its own virtual space in main memory.
+
+### Opcodes
+> x64 defines a set of **opcodes** that represent the available instructions, registers, etc.
+
+### Endianness
+> Property to define bit significance.
+
+**Little endian vs Big endian**
+
+## Hello, World!
+Next, write a programa that outputs the classic "Hello, World".
+
+* Allocate memory for "Hello, World" string
+* Write the string in the output STDOUT
+* Exit the program
+
+### ASCII
+```
+H: 0x48     
+e: 0x65     
+l: 0x6C     
+l: 0x6C     
+o: 0x6F
+,: 0x2C
+
+W: 0x57
+o: 0x6F
+r: 0x72
+l: 0x6C
+d: 0x64
+```
+> 0x is a notation to indicate that the number after *x* it's a hexadecimal.
+
+**Table**: [System calls table](https://x64.syscall.sh/)
+
