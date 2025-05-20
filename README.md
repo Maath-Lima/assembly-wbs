@@ -93,5 +93,46 @@ d: 0x64
 ```
 > 0x is a notation to indicate that the number after *x* it's a hexadecimal.
 
-**Table**: [System calls table](https://x64.syscall.sh/)
+## Syscalls
+Compilation of syscalls for linux:
 
+[System calls table](https://x64.syscall.sh/)
+
+Linux Kernel was written in C, thus all system calls are declared in C.
+
+[System calls manual in C](https://man7.org/linux/man-pages/index.html)
+
+## Assembly
+### Mnemonics
+> A textual form that represents information in a way that makes it easier for the human brain to memorize.
+
+```
+BF 01 00 00 00 = MOV RDI, 1
+```
+
+But the CPU doesn't understand this language directly, so we use an assembler to convert mnemonics into machine code again.
+
+### Assemblers
+Many assemblers were built for different architectures throughout the years.
+
+**For this project:**
+* x86_64 (x64)
+* GNU/Linux (Ubuntu)
+* Assembler NASM 2.16.01
+* GNU ld 2.38
+* Debugger GNU gdb 12.1
+* strace 5.16 (syscalls tracing)
+
+**Timeline**
+
+mnemonics -> assembler -> machine code
+
+To compile the program, mount the instructions with NASM:
+
+```
+nasm -f elf64 first_program.asm -o first_program.o
+```
+
+* -f elf64: destiny arch
+* first_program.asm: input file
+* first_program.o: output for file XPTO
