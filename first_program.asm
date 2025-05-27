@@ -1,10 +1,22 @@
 global _start
 
-msg: db 0x48, 0x65, 0x6C, 0x6C, 0x6F, \
-        0x2C, 0x20, 0x57, 0x6F, 0x72, \
-        0x6C, 0x64, 0xA 
+; Segmento de dados
+section .data
+msg: db "Hello, World", 0xA
 
+section .text
 _start:
-    mov rdi, 0  ;
-    mov rax, 60 ;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; Chamada de sistema
+    ; glibc -> ssize_t write(int fd,const void buf[.count],size_t count)
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov rdi, 1          ; STDOUT
+    mov rsi, msg
+    mov rdx, 13         ; quantiade de bytes a serem escritos
+    mov rax, 1          ; nome da syscall
+    syscall
+
+    ; Chamada de Sistema -> void _exit(int status)
+    mov rdi, 0
+    mov rax, 60
     syscall

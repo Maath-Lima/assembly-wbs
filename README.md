@@ -203,3 +203,15 @@ Track syscalls and signals
 strace first_program
 ```
 
+To run strace we need to load the symbols using `file` command:
+```
+strace ./first_program
+```
+
+### Memory Layout
+The program grows in this direction of memory sections:
+```
+text -> data -> bss
+```
+> The text section needs to be located near the lowest memory addresses (0x401000)
+
