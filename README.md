@@ -226,3 +226,12 @@ text -> data -> bss
 * **interrupt flag**: determine whether the program can receive hardware interrupts.
 * **parity flag**: indicatres if the numbers of set bits is odd or even in the binary representation of the result of the last operation
 * **zero flag**: added when a arithmetic operation results in zero for any registers
+
+When reading 8 byte blocks in the stack (rsp), we can navigate through every ARG available for the program
+```
+x /8xb $rsp + 8 (+ 16....)
+```
+
+### Registers purpose
+![registers](image.png)
+

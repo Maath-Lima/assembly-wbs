@@ -3,16 +3,22 @@ global _start
 %define SYS_write 1
 %define SYS_exit 60
 %define STDOUT 1
-%define NEWLINE 0xA
 
 section .data
-greet: db "Hi", NEWLINE, 0
+greet: db "Hi, ", 0
+newline: db 0xA, 0
 
 section .text
 _start:
 push greet
 call .print ; jump to label .print
 pop rbp     ; stack pop, rbp register is general-purpose, but it mantains the base of the stack
+push qword [rsp + 16] ; ARG1
+call .print
+push newline
+call .print
+pop rbp
+pop rbp
 .exit:
     mov rdi, 0
     mov rax, SYS_exit
