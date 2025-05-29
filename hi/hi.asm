@@ -6,7 +6,7 @@ global _start
 %define NEWLINE 0xA
 
 section .data
-greet: db "Hi", NEWLINE
+greet: db "Hi", NEWLINE, 0
 
 section .text
 _start:
@@ -18,9 +18,18 @@ pop rbp     ; stack pop, rbp register is general-purpose, but it mantains the ba
     mov rax, SYS_exit
     syscall
 .print:
-    mov rdi, STDOUT         
     mov rsi, [rsp + 8] ; the "Hi" string is located 8 bytes below the top of the stack
-    mov rdx, 3
+    mov r9, rsi
+    mov rdx, 0
+.calculate_size:
+    inc rdx
+    inc r9             ; increment R9 register to consume the string bytes until zero
+                       ; and preserving the RSI value
+    cmp byte [r9], 0x00
+    jz .done           ; jump if zero
+    jmp .calculate_size
+.done:
+    mov rdi, STDOUT         
     mov rax, SYS_write
     syscall
-    ret                 ; return call
+    ret                ; return call
