@@ -235,3 +235,28 @@ x /8xb $rsp + 8 (+ 16....)
 ### Registers purpose
 ![registers](image.png)
 
+## Web Architecture
+| To finally create a web server, we need to handle HTTP messages transmitted over transport layer (TCP) through a network
+
+### Client-Server
+
+> Note to myself: That's what I found interesting about this article series, in this section the author, quoting: "...How the entire network communication model (OSI) can be translated in something pratical whitin an OS"
+
+### Sockets and TCP
+> Client and Server both have a process running in with a PID
+
+We know that is possible to make two processes in a machine communicate with each other through UNIX sockets (GNU/Linux systems)
+
+**Berkeley Sockets**
+
+TCP communicates using sockets
+
+In this case...
+
+### How a web server works
+**4 syscalls**:
+
+* socket - creates a network communication endpoint
+* bind - assign name and port to the new socket
+* listen - marks the new socket to be available for connections (must be of stream type, TCP)
+* accept - accepts a client connection on the socket and creates a new *connection socket* for that client
