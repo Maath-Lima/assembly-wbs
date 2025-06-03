@@ -7,6 +7,17 @@ global _start
 
 %define SYS_BIND 49
 
+%define SYS_listen 50
+%define BACKLOG 2
+
+%define SYS_accept 288
+
+%define SYS_write 1
+%define CR 0XD
+%define LF 0XA
+
+%define SYS_close 3
+
 section .bss ; not-initialized data
 sockfd: resb 1
 
@@ -22,6 +33,13 @@ sockaddr:
     port: dw 0xB80B     ; 3000 port (bytes reversed for internet byte order big-endian)
     ip_address: dd 0
     sin_zero: dq 0
+response:
+    headline: db "HTTP/1.1 200 OK", CR, LF              ; CR and LF represents \r\n
+    content_type: db "Content-Type: text/html", CR, LF
+    content_length: db "Content-Length: 22", CR, LF
+    crlf: db CR, LF
+    body: db "<h1>Hello, World!</h1>"
+responseLen: equ $ - response
 
 section .text
 _start:
@@ -40,6 +58,38 @@ _start:
     mov rdx, 16
     mov rax, SYS_BIND
     syscall
+.listen:
+    ; int listen(int sockfd, int backlog)
+    mov rdi, [sockfd]
+    mov rsi, BACKLOG
+    mov rax, SYS_listen
+    syscall
+.accept:
+    ; int accept(int sockfd, struct *addr, int addrlen, int flags)
+    mov rdi, [sockfd]
+    mov rsi, 0
+    mov rdx, 0
+    mov r10, 0
+    mov rax, SYS_accept
+    syscall
+    mov r8, rax         ; client socket
+    call .write         ; write on socket
+    call .close         ; closes the socket
+    jmp .accept         ; server loop
+.write:
+    ; int write(int fd, buffer *bf, int bfLen)
+    mov rdi, r8
+    mov rsi, response
+    mov rdx, responseLen
+    mov rax, SYS_write
+    syscall
+    ret
+.close:
+    ; int close(int fd)
+    mov rdi, r8
+    mov rax, SYS_close
+    syscall
+    ret
 .exit:
     mov rdi, 0
     mov rax, 60

@@ -261,6 +261,8 @@ In this case...
 * listen - marks the new socket to be available for connections (must be of stream type, TCP)
 * accept - accepts a client connection on the socket and creates a new *connection socket* for that client
 
+> The server side will first create a socket, bind it to a well know local address, and put the socket in listening mode.
+
 ```
 int socket(int domain. int type, int protocol)
 ```
@@ -281,4 +283,17 @@ int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
   *sin_zero
 * **addrlen**: 16 bytes, as the size of the data strcuture in x64 architectures
 
-> The internet uses bid-endian, caution when arranging the bytes order for port number
+> The internet uses big-endian, caution when arranging the bytes order for port number
+
+```
+int listen(int sockfd, int backlog);
+```
+* **backlog**: Defines the maximum length to which the queue of pending connections for the socket may grow.
+
+```
+int accept(int sockfd, struct *addr, int addrlen, int flags)
+```
+
+> accept() is the waiter bringing a customer (who's ready to order) to a table
+
+
