@@ -260,3 +260,25 @@ In this case...
 * bind - assign name and port to the new socket
 * listen - marks the new socket to be available for connections (must be of stream type, TCP)
 * accept - accepts a client connection on the socket and creates a new *connection socket* for that client
+
+```
+int socket(int domain. int type, int protocol)
+```
+
+* **domain**: Comunication domain. In the code sample, AF_INET = IPv4 = 2
+* **type**: The code sample uses SOCK_STREAM, that is sequential, reliable, duplex and connection based
+* **protocol**: The code sample uses 0 as default for AF_INET and SOCK_STREAM (socket TCP)
+
+```
+int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
+```
+
+* **sockfd**: Int that represents the descriptor for the new socket 
+* **sockaddr \*\*addr\***: Pointer to the memory address that holds a data structure with the format below:
+  * family
+  * port
+  * ip_address
+  *sin_zero
+* **addrlen**: 16 bytes, as the size of the data strcuture in x64 architectures
+
+> The internet uses bid-endian, caution when arranging the bytes order for port number
