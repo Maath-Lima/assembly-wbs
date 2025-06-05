@@ -20,6 +20,8 @@ global _start
 
 %define SYS_nanosleep 35
 
+%define SYS_fork 57
+
 section .bss ; not-initialized data
 sockfd: resb 1
 
@@ -78,7 +80,16 @@ _start:
     mov rax, SYS_accept
     syscall
     mov r8, rax          ; client socket
-    call handle         ; handle write and closing the socket
+
+    ; process SYS_fork
+    mov rax, SYS_fork
+    syscall
+
+    ; if zero = execution through a child process
+    test rax, rax
+    jz handle
+
+    ; if not, main program execution
     jmp .accept          ; server loop
 handle:
     ; int nanosleep(timespec duration)
