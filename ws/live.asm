@@ -18,6 +18,8 @@ global _start
 
 %define SYS_close 3
 
+%define SYS_nanosleep 35
+
 section .bss ; not-initialized data
 sockfd: resb 1
 
@@ -40,6 +42,9 @@ response:
     crlf: db CR, LF
     body: db "<h1>Hello, World!</h1>"
 responseLen: equ $ - response
+timespec:
+    tv_sec: dq 1
+    tv_nsec: dq 0
 
 section .text
 _start:
@@ -72,19 +77,22 @@ _start:
     mov r10, 0
     mov rax, SYS_accept
     syscall
-    mov r8, rax         ; client socket
-    call .write         ; write on socket
-    call .close         ; closes the socket
-    jmp .accept         ; server loop
-.write:
+    mov r8, rax          ; client socket
+    call handle         ; handle write and closing the socket
+    jmp .accept          ; server loop
+handle:
+    ; int nanosleep(timespec duration)
+    lea rdi, [timespec]
+    mov rax, SYS_nanosleep
+    syscall    
+
     ; int write(int fd, buffer *bf, int bfLen)
     mov rdi, r8
     mov rsi, response
     mov rdx, responseLen
     mov rax, SYS_write
     syscall
-    ret
-.close:
+
     ; int close(int fd)
     mov rdi, r8
     mov rax, SYS_close

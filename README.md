@@ -298,3 +298,26 @@ int accept(int sockfd, struct *addr, int addrlen, int flags)
 
 
 ## Multi-threading
+> The desired state for a server is to scale up the throughput without increasing latency (total time between request and response / client/server).
+
+### Simulating bulk request
+with **xargs**;
+
+`xargs` takes input and passes it as arguments to another command
+
+```
+time echo {1..10} | xargs -n1 bash -c "time curl localhost:3000"
+```
+
+-P represents simultaneously requests
+```
+-P10
+```
+
+### Forking
+To enable concurrency, it's important to know that every computer program runs whitin a OS process. 
+However the actual execution occurs inside a thread (OS execution unity).
+
+> *A forking creates a child process copying everything from the main program*
+![alt text](image-1.png)
+
