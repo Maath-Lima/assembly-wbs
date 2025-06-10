@@ -20,6 +20,8 @@ global _start
 
 %define SYS_nanosleep 35
 
+%define SYS_clone 56
+
 section .bss ; not-initialized data
 sockfd: resb 1
 
@@ -78,8 +80,16 @@ _start:
     mov rax, SYS_accept
     syscall
     mov r8, rax          ; client socket
-    call handle         ; handle write and closing the socket
-    jmp .accept          ; server loop
+
+    mov rdi, CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_PARENT|CLONE_THREAD|CLONE_IO
+    mov rsi, 0
+    mov rax, SYS_clone
+    syscall
+
+    test rax, rax
+    jz handle
+
+    jmp .accept
 handle:
     ; int nanosleep(timespec duration)
     lea rdi, [timespec]

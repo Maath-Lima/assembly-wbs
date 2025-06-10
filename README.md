@@ -321,3 +321,15 @@ However the actual execution occurs inside a thread (OS execution unity).
 > *A forking creates a child process copying everything from the main program*
 ![alt text](image-1.png)
 
+### Threads
+> Every process has a thread (main thread) where the program executes.
+
+Multiple threads can share the same process memory, thus, instead of forking processes and use more memory, new threads works within the same process.
+
+For thread creation in Assembly, two structures will be used:
+* Thread flags
+* Memory alocation
+
+**Thread**: Act like a child process, but mostly shares resources with the main process.
+
+
