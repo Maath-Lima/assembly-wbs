@@ -22,6 +22,8 @@ global _start
 
 %define SYS_clone 56
 
+%define SYS_brk 12
+
 section .bss ; not-initialized data
 sockfd: resb 1
 

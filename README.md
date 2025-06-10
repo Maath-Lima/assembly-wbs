@@ -333,3 +333,8 @@ For thread creation in Assembly, two structures will be used:
 **Thread**: Act like a child process, but mostly shares resources with the main process.
 
 
+A thread must end, if not, the system throws a segmentation fault:
+```
+...
+mov rax, SYS_EXIT
+```
