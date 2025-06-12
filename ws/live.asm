@@ -1,29 +1,23 @@
 global _start
 
 %define SYS_SOCKET 41
-%define AF_INET 2
-%define SOCK_STREAM 1
-%define SOCK_PROTOCOL 0
-
-%define SYS_BIND 49
-
+%define SYS_bind 49
 %define SYS_listen 50
-%define BACKLOG 2
-
-%define SYS_accept 288
-
+%define SYS_accept4 288
 %define SYS_write 1
-%define CR 0XD
-%define LF 0XA
-
 %define SYS_close 3
 
 %define SYS_nanosleep 35
-
-%define SYS_exit 60
-
 %define SYS_clone 56
 %define SYS_brk 12
+%define SYS_exit 60
+
+%define AF_INET 2
+%define SOCK_STREAM 1
+%define SOCK_PROTOCOL 0
+%define BACKLOG 2
+%define CR 0xD
+%define LF 0xA
 
 %define CHILD_STACK_SIZE 4096
 %define CLONE_VM 0x00000100
@@ -33,15 +27,6 @@ global _start
 %define CLONE_THREAD 0x00010000
 %define CLONE_IO 0x80000000
 %define CLONE_SIGHAND 0x00000800
-
-section .bss ; not-initialized data
-sockfd: resb 1
-
-; Data types in asm
-; (db) byte => 1 byte
-; (dw) word => 2 bytes
-; (dd) doubleword => 4 bytes
-; (dq) quadword => 8 bytes
 
 section .data
 sockaddr:
@@ -59,9 +44,22 @@ responseLen: equ $ - response
 timespec:
     tv_sec: dq 1
     tv_nsec: dq 0
+queuePtr: db 0
+
+section .bss
+sockfd: resb 8
+queue: resb 8
 
 section .text
 _start:
+.initialize_pool:
+    mov r8, 0
+.pool:
+    call thread
+    inc r8
+    cmp r8, 5
+    je .socket
+    jmp .pool
 .socket:
     ; int socket(int domain. int type, int protocol)
     mov rdi, AF_INET
@@ -75,7 +73,7 @@ _start:
     mov rdi, [sockfd]
     mov rsi, sockaddr
     mov rdx, 16
-    mov rax, SYS_BIND
+    mov rax, SYS_bind
     syscall
 .listen:
     ; int listen(int sockfd, int backlog)
@@ -89,13 +87,19 @@ _start:
     mov rsi, 0
     mov rdx, 0
     mov r10, 0
-    mov rax, SYS_accept
+    mov rax, SYS_accept4
     syscall
+    
     mov r8, rax          ; client socket
-
-    call thread
+    call enqueue
 
     jmp .accept
+enqueue:
+    xor rdx, rdx           ; clear (0) rdx register
+    mov dl, [queuePtr]
+    mov [queue + rdx], r8
+    inc byte [queuePtr]
+    ret
 thread:
     mov rdi, 0
     mov rax, SYS_brk
@@ -114,26 +118,53 @@ thread:
     syscall
     ret
 handle:
-    ; int nanosleep(timespec duration)
+    cmp byte [queuePtr], 0
+    je handle
+
+    call dequeue
+    mov r8, rax
+
     lea rdi, [timespec]
     mov rax, SYS_nanosleep
-    syscall    
+    syscall
 
-    ; int write(int fd, buffer *bf, int bfLen)
+    ; write
     mov rdi, r8
     mov rsi, response
     mov rdx, responseLen
     mov rax, SYS_write
     syscall
 
-    ; int close(int fd)
+    ; close
     mov rdi, r8
     mov rax, SYS_close
     syscall
 
-    mov rdi, 0
-    mov rax, SYS_exit
-    syscall
+    jmp handle
+dequeue:
+    xor rax, rax
+    xor rsi, rsi
+
+    mov al, [queue]
+    mov rcx, 0
+.loop_dequeue:
+    cmp byte [queuePtr], 0
+    je .return_dequeue
+
+    cmp cl, [queuePtr]
+    je .done_dequeue
+
+    ; shift
+    xor r10, r10
+    mov r10b, [queue + rcx + 1]
+    mov byte [queue + rcx], r10b
+
+    inc rcx
+    jmp .loop_dequeue
+.done_dequeue:
+    dec byte [queuePtr]
+.return_dequeue:
+    ret
 .exit:
     mov rdi, 0
     mov rax, 60
