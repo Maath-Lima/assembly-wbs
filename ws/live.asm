@@ -6,6 +6,7 @@ global _start
 %define SYS_accept4 288
 %define SYS_write 1
 %define SYS_close 3
+%define SYS_futex 202
 
 %define SYS_nanosleep 35
 %define SYS_clone 56
@@ -49,6 +50,7 @@ queuePtr: db 0
 section .bss
 sockfd: resb 8
 queue: resb 8
+condvar: resb 8
 
 section .text
 _start:
@@ -99,6 +101,19 @@ enqueue:
     mov dl, [queuePtr]
     mov [queue + rdx], r8
     inc byte [queuePtr]
+
+    call emit_signal
+    ret
+emit_signal:
+    mov rdi, condvar
+    mov rsi, FUTEX_WAKE | FUTEX_PRIVATE_FLAG
+    
+    xor rdx, rdx
+    xor r10, r10
+    xor r8, r8
+
+    mov rax, SYS_futex
+    syscall
     ret
 thread:
     mov rdi, 0
@@ -113,16 +128,16 @@ thread:
 
     mov rdi, CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_PARENT|CLONE_THREAD|CLONE_IO
     lea rsi, [rdx + CHILD_STACK_SIZE - 8]
-    mov qword [rsi], handle
+    mov qword [rsi], handle ; Return address when thread starts. When the thread start, it'll jump to handle
     mov rax, SYS_clone
     syscall
     ret
 handle:
     cmp byte [queuePtr], 0
-    je handle
+    je .wait
 
     call dequeue
-    mov r8, rax
+    mov r10, rax
 
     lea rdi, [timespec]
     mov rax, SYS_nanosleep
@@ -141,6 +156,23 @@ handle:
     syscall
 
     jmp handle
+.wait:
+    call wait_condvar
+    jmp handle
+wait_condvar:
+    mov rdi, condvar
+
+    mov rsi, FUTEX_WAIT | FUTEX_PRIVATE_FLAG
+       xor rdx, rdx
+   xor r10, r10              
+   xor r8, r8               
+   mov rax, SYS_futex
+   syscall
+
+   test rax, rax
+   jz .done_condvar
+.done_condvar:
+   ret
 dequeue:
     xor rax, rax
     xor rsi, rsi
