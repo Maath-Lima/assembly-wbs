@@ -319,7 +319,7 @@ To enable concurrency, it's important to know that every computer program runs w
 However the actual execution occurs inside a thread (OS execution unity).
 
 > *A forking creates a child process copying everything from the main program*
-![alt text](image-1.png)
+![forking](image-1.png)
 
 ### Threads
 > Every process has a thread (main thread) where the program executes.
@@ -338,3 +338,9 @@ A thread must end, if not, the system throws a segmentation fault:
 ...
 mov rax, SYS_EXIT
 ```
+
+### Thread Pool
+> Threads running in a loop, consuming messages from a data structure (lika a queue structure)
+
+![thread-pool](image-2.png)
+
