@@ -28,6 +28,9 @@ global _start
 %define CLONE_THREAD 0x00010000
 %define CLONE_IO 0x80000000
 %define CLONE_SIGHAND 0x00000800
+%define FUTEX_WAIT 0
+%define FUTEX_WAKE 1
+%define FUTEX_PRIVATE_FLAG 128
 
 section .data
 sockaddr:
@@ -46,7 +49,6 @@ timespec:
     tv_sec: dq 1
     tv_nsec: dq 0
 queuePtr: db 0
-
 section .bss
 sockfd: resb 8
 queue: resb 8
@@ -144,14 +146,14 @@ handle:
     syscall
 
     ; write
-    mov rdi, r8
+    mov rdi, r10
     mov rsi, response
     mov rdx, responseLen
     mov rax, SYS_write
     syscall
 
     ; close
-    mov rdi, r8
+    mov rdi, r10
     mov rax, SYS_close
     syscall
 
@@ -163,7 +165,7 @@ wait_condvar:
     mov rdi, condvar
 
     mov rsi, FUTEX_WAIT | FUTEX_PRIVATE_FLAG
-       xor rdx, rdx
+   xor rdx, rdx
    xor r10, r10              
    xor r8, r8               
    mov rax, SYS_futex
