@@ -357,4 +357,8 @@ Futex syscall can suspend or execute a thread based on a conditional variable (c
 
 **Timeline**
 * A thread verifies if the socket queue has something, if empty, the verifier thread is suspended with *futex wait*
-* When the queue has something, another thread signals with *futex wake* in the same condition variable  
+* When the queue has something, another thread signals with *futex wake* in the same condition variable
+
+### Mmap
+> To avoid memory fragmentation, which makes memory reuse more difficult, the `mmap` syscall can be used as a workaround. This syscall reserves an area in memory that can be recycled later more easily.
+

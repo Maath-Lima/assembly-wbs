@@ -118,16 +118,13 @@ emit_signal:
     syscall
     ret
 thread:
-    mov rdi, 0
-    mov rax, SYS_brk
+    mov rdi, 0x0
+    mov rsi, CHILD_STACK_SIZE
+    mov rdx, PROT_WRITE | PROT_READ
+    mov r10, MAP_ANONYMOUS | MAP_PRIVATE | MAP_GROWSDOWN
+    mov rax, SYS_mmap
     syscall
-    mov rdx, rax
-
-    mov rdi, rax
-    add rdi, CHILD_STACK_SIZE
-    mov rax, SYS_brk
-    syscall
-
+    
     mov rdi, CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_PARENT|CLONE_THREAD|CLONE_IO
     lea rsi, [rdx + CHILD_STACK_SIZE - 8]
     mov qword [rsi], handle ; Return address when thread starts. When the thread start, it'll jump to handle
