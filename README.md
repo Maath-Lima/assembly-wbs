@@ -344,17 +344,3 @@ mov rax, SYS_EXIT
 
 ![thread-pool](image-2.png)
 
-### One thread in loop
-
-**Timeline**
-* Main process starts a thread
-* This thread stays in loop reading messages (sockets) from a queue. In this project sample, when the thread is reading the socket it'll execute the implemented logic: *nanosleep*, write in the socket, close the socket and comeback to loop
-
-### Futex sync
-> *Locks* are used to control access to a resource shared by multiple threads.
-
-Futex syscall can suspend or execute a thread based on a conditional variable (condvar).
-
-**Timeline**
-* A thread verifies if the socket queue has something, if empty, the verifier thread is suspended with *futex wait*
-* When the queue has something, another thread signals with *futex wake* in the same condition variable  
